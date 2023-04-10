@@ -6,6 +6,12 @@ module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
 
   module Helper
+    module MessageTypes
+      SUCCESS = "success"
+      ERROR = "error"
+      WARNING = "warning"
+      INFO = "info"
+    end
     class SlackBotAttachmentsHelper
       # class methods that you define here become available in your action
       # as `Helper::SlackBotAttachmentsHelper.your_method`
@@ -15,7 +21,7 @@ module Fastlane
       end
 
       def self.generate_slack_attachments(options)
-        color = (options[:success] ? 'good' : 'danger')
+        color = options[:message_type]
         should_add_payload = ->(payload_name) { options[:default_payloads].map(&:to_sym).include?(payload_name.to_sym) }
 
         slack_attachment = {
@@ -48,9 +54,15 @@ module Fastlane
 
         # test_result
         if should_add_payload[:test_result]
+          case options[:message_type]
+          when MessageTypes::SUCCESS, MessageTypes::ERROR, MessageTypes::WARNING
+            value = options[:message_type].capitalize
+          else
+            value = ''
+          end
           slack_attachment[:fields] << {
             title: 'Result',
-            value: (options[:success] ? 'Success' : 'Error'),
+            value: value,
             short: true
           }
         end
@@ -66,7 +78,7 @@ module Fastlane
 
         # git_author
         if Actions.git_author_email && should_add_payload[:git_author]
-          if FastlaneCore::Env.truthy?('FASTLANE_SLACK_HIDE_AUTHOR_ON_SUCCESS') && options[:success]
+          if FastlaneCore::Env.truthy?('FASTLANE_SLACK_HIDE_AUTHOR_ON_SUCCESS') && options[:message] == MessageTypes::SUCCESS
             # We only show the git author if the build failed
           else
             slack_attachment[:fields] << {
