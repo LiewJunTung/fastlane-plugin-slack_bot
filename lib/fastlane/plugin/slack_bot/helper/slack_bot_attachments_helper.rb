@@ -11,6 +11,7 @@ module Fastlane
       ERROR = "error"
       WARNING = "warning"
       INFO = "info"
+      NONE = "none"
     end
     class SlackBotAttachmentsHelper
       # class methods that you define here become available in your action
@@ -24,6 +25,11 @@ module Fastlane
         color = options[:message_type]
         should_add_payload = ->(payload_name) { options[:default_payloads].map(&:to_sym).include?(payload_name.to_sym) }
 
+        if options[:message_type] != MessageTypes::NONE
+          color = options[:message_type]
+        else
+          color = nil
+        end
         slack_attachment = {
           fallback: options[:message],
           text: options[:message],

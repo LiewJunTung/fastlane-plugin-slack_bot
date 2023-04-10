@@ -140,7 +140,7 @@ module Fastlane
                                        env_name: "FL_POST_TO_MESSAGE_TYPE",
                                        description: "Types of message (success/error/warning/info)",
                                        optional: true,
-                                       default_value: true,
+                                       default_value: Fastlane::Helper::MessageTypes::NONE,
                                        is_string: false),
           FastlaneCore::ConfigItem.new(key: :thread_ts,
                                        env_name: "FL_POST_TO_SLACK_THREAD_TS",
